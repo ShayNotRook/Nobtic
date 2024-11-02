@@ -1,3 +1,11 @@
 from django.contrib import admin
+from .models import Salon, Service
 
-# Register your models here.
+@admin.register(Salon)
+class SalonAdmin(admin.ModelAdmin):
+    prepopulated_fields = {'slug':('name',)}
+    
+    
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
+    list_display = ('name', 'salon')
