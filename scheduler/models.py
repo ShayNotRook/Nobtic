@@ -1,7 +1,8 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.conf import settings
+from django.core.exceptions import ValidationError
 
-User = get_user_model()
+User = settings.AUTH_USER_MODEL
 
 class Salon(models.Model):
     name = models.CharField(max_length=255)
@@ -9,11 +10,39 @@ class Salon(models.Model):
     address = models.TextField()
     contact = models.CharField(max_length=20)
     owner = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
-    
+
     def __str__(self) -> str:
         return self.name
     
+    class Meta:
+        verbose_name = 'Salon Model'    
+
+
+class SalonAvailableTimes(models.Model):
+    salon = models.ForeignKey(Salon, on_delete=models.CASCADE)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    day_of_week = models.CharField(max_length=12, choices=[
+        ('Saturday', 'Saturday'),
+        ('Sunday', 'Sunday'),
+        ('Monday', 'Monday'),
+        ('Tuesday', 'Tuesday'),
+        ('Wednesday', 'Wednesday'),
+        ('Thursday', 'Thursday'),
+        ('Friday', 'Friday')
+    ]) 
     
+    def __str__(self) -> str:
+        return f"{self.salon}"
+    
+    
+    def clean(self) -> None:
+        if self.start_time >= self.end_time:
+            raise ValidationError("End time must be after start time")
+          
+    
+    class Meta:
+        verbose_name = 'Available time'
     
 class Service(models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE)
