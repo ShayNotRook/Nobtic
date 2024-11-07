@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     # Local Apps
     'scheduler',
     'users',
-    'bot',
+    'bot.apps.BotConfig',
     # 3rd Party Apps
     'rest_framework',
 ]
