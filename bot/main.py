@@ -1,9 +1,9 @@
 import os
-print(os.getcwd())
 
 from typing import Final
 
 from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler
+from telegram.error import Conflict
 
 from bot.handlers.commands import start, book
 
@@ -12,7 +12,7 @@ TOKEN: Final = os.environ.get("TOKEN")
 BOT_USERNAME: Final = os.environ.get("BOT_USERNAME")
 
 # Application Setup (Using ApplicationBuilder class)
-async def main() -> None:
+def main() -> None:
     application = ApplicationBuilder().token(TOKEN).build()
     
     # Commands and Callback query handlers
@@ -22,4 +22,8 @@ async def main() -> None:
     # application.add_handler(CallbackQueryHandler(confirm_appointment))
     
     # Start polling for updates
-    await application.run_polling()
+    try:
+        application.run_polling()
+    except Conflict:
+        print("Another instance of the bot is running, Exiting.")
+        application.stop()

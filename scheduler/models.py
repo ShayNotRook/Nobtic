@@ -1,6 +1,12 @@
+from typing import Iterable
+from datetime import time
+
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
+
+
 
 User = settings.AUTH_USER_MODEL
 
@@ -37,8 +43,10 @@ class SalonAvailableTimes(models.Model):
     
     
     def clean(self) -> None:
-        if self.start_time >= self.end_time:
-            raise ValidationError("End time must be after start time")
+        if self.start_time > self.end_time:
+            raise ValidationError("Start time must be before end time")
+        if self.start_time < time(0, 0) or self.end_time > time(23, 59):
+            raise ValidationError("Time must be within a valid 24-hour range.")
           
     
     class Meta:
@@ -53,13 +61,41 @@ class Service(models.Model):
         return f"{self.name} - {self.salon.name}"
     
     
-
-class Appointment(models.Model):
-    salon = models.ForeignKey(Salon, on_delete=models.CASCADE)
-    customer_name = models.CharField(max_length=100)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    
+class AppointmentSlot(models.Model):
+    salon = models.ForeignKey(Salon, on_delete=models.CASCADE, null=True)
     date = models.DateField()
-    time = models.TimeField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["salon", "date", "start_time", "end_time"],
+                name="unique_slot_per_salon"
+            )
+        ]
     
     def __str__(self) -> str:
-        return f"{self.customer_name} - {self.service.name} on {self.date} at {self.time}"
+        return f"{self.salon.name} => {self.date}"
+    
+    def clean(self):
+        if self.start_time >= self.end_time:
+            raise ValidationError("Start time must be before end time")
+        
+    
+    
+    
+
+class Appointment(models.Model):
+    customer_name = models.CharField(max_length=100, null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE)
+    slot = models.ForeignKey(AppointmentSlot, on_delete=models.CASCADE, related_name="app_slot", null=True)
+    taken = models.BooleanField(default=False)
+    
+    def __str__(self) -> str:
+        return f"{self.customer_name} - {self.service.name} on {self.slot.date} at {self.slot.start_time}"
+    
+    
+    class Meta:
+        unique_together = ["app_slot.id", "app_slot.start_time", "app_slot.end_time"]
