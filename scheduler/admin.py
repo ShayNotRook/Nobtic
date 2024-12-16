@@ -21,4 +21,14 @@ class ServiceAdmin(admin.ModelAdmin):
 class AppointmentSlotAdmin(admin.ModelAdmin):
     list_display = ['salon', 'start_time', 'end_time', 'date']
     
-admin.site.register(Appointment)
+@admin.register(Appointment)
+class AppointmentAdmin(admin.ModelAdmin):
+    list_display = ["name", "app_start", "app_end", "taken"]
+    list_filter = ["taken"]
+    
+    
+    def name(self, obj):
+        if obj.customer_name:
+            return obj.customer_name
+        else:
+            return "Empty"
