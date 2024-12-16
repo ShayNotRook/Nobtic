@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import List
 from datetime import time
 
 from django.db import models
@@ -83,19 +83,53 @@ class AppointmentSlot(models.Model):
         if self.start_time >= self.end_time:
             raise ValidationError("Start time must be before end time")
         
+    def create_appointments(self, service_duration: int):
+        from datetime import datetime, timedelta
+        
+        start = datetime.combine(self.date, self.start_time)
+        end = datetime.combine(self.date, self.end_time)
+        current = start
+        
+        while current + timedelta(minutes=service_duration) <= end:
+            Appointment.objects.create(
+                slot=self,
+                app_start=current.time(),
+                app_end=(current + timedelta(minutes=service_duration)).time(),
+                taken=False
+            )
+            current += timedelta(minutes=service_duration)
     
-    
+    def all_appointments(self):
+        return self.appointments.filter(taken=False)
     
 
 class Appointment(models.Model):
     customer_name = models.CharField(max_length=100, null=True)
-    service = models.ForeignKey(Service, on_delete=models.CASCADE)
-    slot = models.ForeignKey(AppointmentSlot, on_delete=models.CASCADE, related_name="app_slot", null=True)
+    service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
+    slot = models.ForeignKey(AppointmentSlot, on_delete=models.CASCADE, related_name="appointments", null=True)
     taken = models.BooleanField(default=False)
+    app_start = models.TimeField(null=True)
+    app_end = models.TimeField(null=True)
     
     def __str__(self) -> str:
-        return f"{self.customer_name} - {self.service.name} on {self.slot.date} at {self.slot.start_time}"
+        return f"{self.customer_name if self.customer_name else ''} on \
+                 {self.slot.date} at {self.app_start} to {self.app_end} -> {'Taken' if self.taken else 'Available'}"
     
     
-    class Meta:
-        unique_together = ["app_slot.id", "app_slot.start_time", "app_slot.end_time"]
+    @staticmethod
+    def find_available_slots(slot: AppointmentSlot, duration: int) -> List["Appointment"] :
+        """
+        Find smaller available time slots within the given AppointmentSlot.
+        """
+        available = []
+        appointments = slot.appointments.filter(taken=False).order_by("app_start")
+        for appointment in appointments:
+            # Check if the duration fits in the current appointment
+            if (appointment.app_end.hour * 60 + appointment.app_end.minute) - (
+                appointment.app_start.hour * 60 + appointment.app_start.minute
+            ) >= duration:
+                available.append(appointment)
+        return available
+    
+    
+    
