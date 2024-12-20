@@ -16,7 +16,7 @@ def all_apps(request: HttpRequest):
     user = _user.objects.get(username=request.user.username)
     print(user)
     today = datetime.now().date()
-    app_slot = AppointmentSlot.objects.get(salon__owner=user)
+    app_slot = AppointmentSlot.objects.get(salon__owner=user, date=today)
     salon_name = app_slot.salon.name
     print(app_slot)
     apps = app_slot.all_appointments
