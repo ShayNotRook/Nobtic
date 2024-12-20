@@ -99,8 +99,9 @@ class AppointmentSlot(models.Model):
             )
             current += timedelta(minutes=service_duration)
     
-    def all_appointments(self):
-        return self.appointments.filter(taken=False)
+    @property
+    def all_appointments(self) -> List["Appointment"]:
+        return self.appointments.all()
     
 
 class Appointment(models.Model):
@@ -130,6 +131,20 @@ class Appointment(models.Model):
             ) >= duration:
                 available.append(appointment)
         return available
+    
+    
+    
+    @staticmethod
+    def book_app(id: int, name: str) -> None:
+        try:
+            app = Appointment.objects.get(id=id)
+            if app.taken:
+                raise ValidationError("This appointment is already taken.")
+            app.customer_name = name
+            app.taken = True
+            app.save()
+        except Appointment.DoesNotExist:
+            raise ValidationError("Appointment with the given ID does not exist.")
     
     
     

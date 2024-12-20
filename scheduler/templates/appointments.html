@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointments</title>
+</head>
+<body>
+    <h2>Appointments</h2>
+    {% for app in appointments %}
+        <div class="appointment">
+            <!-- <p>Test</p> -->
+            {% if app.customer_name %}
+                <h2>{{ app.customer_name }}</h2>
+            {% endif %}
+                
+            <p>{{ app.start_time }}</p>
+            <p>{{ app.end_time }}</p>
+            <p>{{ app.taken }}</p>
+        </div>
+    {% endfor %}
+</body>
+</html>
