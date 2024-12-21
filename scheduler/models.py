@@ -15,7 +15,7 @@ class Salon(models.Model):
     slug = models.SlugField(unique=True, null=True)
     address = models.TextField()
     contact = models.CharField(max_length=20)
-    owner = models.ForeignKey(User, on_delete=models.PROTECT, null=True)
+    owner = models.OneToOneField(User, on_delete=models.PROTECT, null=True, related_name='salon')
 
     def __str__(self) -> str:
         return self.name
