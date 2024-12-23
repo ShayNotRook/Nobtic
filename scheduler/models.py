@@ -65,8 +65,8 @@ class Service(models.Model):
 class AppointmentSlot(models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, null=True)
     date = models.DateField()
-    start_time = models.TimeField()
-    end_time = models.TimeField()
+    start_time = models.TimeField(default=time(8, 0))
+    end_time = models.TimeField(default=time(20, 0))
     
     class Meta:
         constraints = [
@@ -77,7 +77,7 @@ class AppointmentSlot(models.Model):
         ]
     
     def __str__(self) -> str:
-        return f"{self.salon.name} => {self.date}"
+        return f"{self.date}"
     
     def clean(self):
         if self.start_time >= self.end_time:
