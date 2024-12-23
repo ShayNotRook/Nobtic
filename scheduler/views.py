@@ -18,9 +18,10 @@ def all_apps(request: HttpRequest):
     today = datetime.now().date()
     apps = []
     try:
-        app_slot = AppointmentSlot.objects.get(salon__owner=user, date__gte=today)
+        app_slot = AppointmentSlot.objects.get(salon__owner=user, date=today)
         apps = app_slot.all_appointments.all()
     except AppointmentSlot.DoesNotExist:
         apps = None
     # print(print(apps))
     return render(request, 'appointments.html', {'appointments': apps, 'user': user, 'name': salon_name})
+
