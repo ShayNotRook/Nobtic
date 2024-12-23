@@ -8,16 +8,22 @@
 <body style="font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; background-color: rgb(160, 160, 160);">
     <h2>Appointments</h2>
     <h3>Salon: {{ name }}</h3>
-    {% if apps != None %}
+    {% if appointments != None %}
+        <div class="appointments">
         {% for app in appointments %}
         <!-- <p>Test</p> -->
-            <div class="appointment" style="border: 1px solid rgb(122, 122, 122); margin-bottom: 12px; padding: 8px; 
-                            background-color: rgb(181, 196, 203); display: flex; align-items: center; justify-content: space-between;">
-                <!-- <p>Test</p> -->
+            <div class="appointment" style="border: 0.5px solid rgb(187, 187, 187);border-radius: 10px ;margin-bottom: 12px; padding: 8px; 
+                            background-color: rgb(145, 145, 145); display: flex; align-items: center; justify-content: space-between;">
+
                 
                 <div style="display: flex; align-items: center; justify-content: space-between;">
                     <p style="padding-right: 12px;">{{ app.app_start }} >>> {{ app.app_end }}</p>
-                    {% if app.taken %}<h5 style="color: rgb(237, 152, 152);">Taken</h5>{% else %}<h5 style="color: rgb(92, 92, 233);">Available</h5>{% endif %}
+
+                    {% if app.taken %}<h5 style="color: rgb(237, 152, 152);"
+                                    >Taken</h5>
+                    
+                    {% else %}<h5 style="border-radius: 12px;color: rgb(255, 255, 255); background-color: rgb(7, 7, 176); padding: 12px;"
+                                    >Available</h5>{% endif %}
                 </div>
                 {% if app.customer_name %}
                     <h5>{{ app.customer_name }}</h2>
@@ -27,6 +33,7 @@
         {% endfor %}
         {% else %}
             <h3>No appointments available</h3>
+        </div>
     {% endif %}
 </body>
 </html>
