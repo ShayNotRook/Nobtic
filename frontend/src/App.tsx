@@ -14,6 +14,7 @@ function App() {
         <Header />
         <Routes>
           <Route path='dashboard/' element={<Home />} />
+          {/* <Route path='apps/' element={}></Route> */}
         </Routes>
         <Footer />
       </div>
