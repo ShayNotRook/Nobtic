@@ -63,10 +63,20 @@ class Service(models.Model):
     
     
 class AppointmentSlot(models.Model):
+    class DayOfWeek(models.TextChoices):
+        SATURDAY = 'شنبه'
+        SUNDAY = 'یکشنبه'
+        MONDAY = 'دوشنبه'
+        TUESDAY = 'سه شنبه'
+        WEDNESDAY = 'چهارشنبه'
+        THURSDAY = 'پنجشنبه'
+        FRIDAY = 'جمعه'
+        
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, null=True)
     date = models.DateField()
     start_time = models.TimeField(default=time(8, 0))
     end_time = models.TimeField(default=time(20, 0))
+    day_of_week = models.CharField(max_length=12, choices=DayOfWeek.choices, null=True)
     
     class Meta:
         constraints = [
@@ -78,6 +88,10 @@ class AppointmentSlot(models.Model):
     
     def __str__(self) -> str:
         return f"{self.date}"
+    
+    def save(self, *args, **kwargs):
+        self.day_of_week = self.date.strftime('%A')
+        super().save(*args, **kwargs)
     
     def clean(self):
         if self.start_time >= self.end_time:
