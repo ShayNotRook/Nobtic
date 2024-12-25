@@ -8,6 +8,8 @@ python-telegram-bot = "*"
 django = "*"
 djangorestframework = "*"
 aiogram = "*"
+pytz = "*"
+persiantools = "*"
 
 [dev-packages]
 
