@@ -1,6 +1,8 @@
 from typing import List
 from datetime import time
 
+import pytz
+
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -19,6 +21,40 @@ class Salon(models.Model):
 
     def __str__(self) -> str:
         return self.name
+    
+    def create_slots_until_date(self, end_date: str) -> None:
+        """
+        Creates appointment slots until the given end_date.
+
+        Parameters:
+        end_date (str): The end date in the format "YYYY-MM-DD".
+        """
+        from datetime import timedelta, datetime
+        from persiantools.jdatetime import JalaliDate
+        
+        print("Test")
+        
+        iran_tz = pytz.timezone("Asia/Tehran")
+        end_date = JalaliDate(*map(int, end_date.split('-')), locale="fa").to_gregorian()
+        current_date = JalaliDate.today().to_gregorian()
+        days_till_end_date: timedelta = end_date - current_date
+        
+        slots_to_create: List['AppointmentSlot'] = []
+    
+            
+        for n in range(days_till_end_date.days + 1):
+            single_date = current_date + timedelta(days=n)
+            if not AppointmentSlot.objects.filter(salon=self, date=single_date).exists():
+                slot = AppointmentSlot(salon=self, date=single_date)
+                slot.save()
+                slots_to_create.append(slot)
+        print(slots_to_create)
+        
+        if slots_to_create:
+            created_slots = AppointmentSlot.objects.bulk_create(slots_to_create, ignore_conflicts=True)
+            print(f"Created {len(created_slots)} appointment slots.")
+        else:
+            print("No new appointment slots needed.")
     
     class Meta:
         verbose_name = 'Salon Model'    
@@ -117,6 +153,7 @@ class AppointmentSlot(models.Model):
     def all_appointments(self) -> List["Appointment"]:
         return self.appointments.all()
     
+                
 
 class Appointment(models.Model):
     customer_name = models.CharField(max_length=100, null=True)
@@ -125,6 +162,7 @@ class Appointment(models.Model):
     taken = models.BooleanField(default=False)
     app_start = models.TimeField(null=True)
     app_end = models.TimeField(null=True)
+    active = models.BooleanField(default=True)
     
     def __str__(self) -> str:
         return f"{self.customer_name if self.customer_name else ''} on \
