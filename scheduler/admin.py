@@ -24,7 +24,7 @@ class AppointmentSlotAdmin(admin.ModelAdmin):
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
     list_display = ["name", "app_start", "app_end", "taken"]
-    list_filter = ["taken"]
+    list_filter = ["taken", "slot__date"]
     
     
     def name(self, obj):
