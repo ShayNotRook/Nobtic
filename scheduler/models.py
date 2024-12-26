@@ -1,8 +1,6 @@
 from typing import List
 from datetime import time
 
-import pytz
-
 from django.db import models
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -34,12 +32,12 @@ class Salon(models.Model):
         
         print("Test")
         
-        iran_tz = pytz.timezone("Asia/Tehran")
         end_date = JalaliDate(*map(int, end_date.split('-')), locale="fa").to_gregorian()
+        print(end_date)
         current_date = JalaliDate.today().to_gregorian()
         days_till_end_date: timedelta = end_date - current_date
         
-        slots_to_create: List['AppointmentSlot'] = []
+        slots_to_create: List['AppointmentSlot'] = [] # Stores AppointmentSlot objects to be bulk created
     
             
         for n in range(days_till_end_date.days + 1):
@@ -48,11 +46,13 @@ class Salon(models.Model):
                 slot = AppointmentSlot(salon=self, date=single_date)
                 slot.save()
                 slots_to_create.append(slot)
-        print(slots_to_create)
+        
+        # print(slots_to_create)
         
         if slots_to_create:
             created_slots = AppointmentSlot.objects.bulk_create(slots_to_create, ignore_conflicts=True)
             print(f"Created {len(created_slots)} appointment slots.")
+        
         else:
             print("No new appointment slots needed.")
     
