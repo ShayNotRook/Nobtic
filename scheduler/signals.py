@@ -12,3 +12,5 @@ def generate_apps(sender, instance, created, **kwargs):
     if created:
         service_duration = 60
         instance.create_appointments(service_duration)
+        
+
