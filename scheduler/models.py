@@ -100,13 +100,13 @@ class Service(models.Model):
     
 class AppointmentSlot(models.Model):
     class DayOfWeek(models.TextChoices):
-        SATURDAY = 'شنبه'
-        SUNDAY = 'یکشنبه'
-        MONDAY = 'دوشنبه'
-        TUESDAY = 'سه شنبه'
-        WEDNESDAY = 'چهارشنبه'
-        THURSDAY = 'پنجشنبه'
-        FRIDAY = 'جمعه'
+        SATURDAY = 'Saturday'
+        SUNDAY = 'Sunday'
+        MONDAY = 'Monday'
+        TUESDAY = 'Tuesday'
+        WEDNESDAY = 'Wednesday'
+        THURSDAY = 'Thursday'
+        FRIDAY = 'Friday'
         
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, null=True)
     date = models.DateField()
@@ -132,7 +132,29 @@ class AppointmentSlot(models.Model):
     def clean(self):
         if self.start_time >= self.end_time:
             raise ValidationError("Start time must be before end time")
-        
+    
+    def get_day_fa(self):
+        farsi_days = {
+            'Saturday': 'شنبه',
+            'Sunday': 'یکشنبه',
+            'Monday': 'دوشنبه',
+            'Tuesday': 'سه شنبه',
+            'Wednesday': 'چهارشنبه',
+            'Thursday': 'پنجشنبه',
+            'Friday': 'جمعه'
+        }
+        return farsi_days.get(self.day_of_week)
+    
+    # @property
+    def get_day_display_custom(self):
+        return f"{self.day_of_week} / {self.get_day_fa()}"
+    
+    @property
+    def day_fa(self):
+        return self.get_day_fa()
+    
+    
+    # Util function for automatically creating apps (With signal)
     def create_appointments(self, service_duration: int):
         from datetime import datetime, timedelta
         
