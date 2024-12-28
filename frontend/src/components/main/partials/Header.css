@@ -1,0 +1,6 @@
+.header {
+    background-color: rgb(3, 128, 99);
+    height: 60px;
+    /* align-items: left; */
+    place-content: center;
+}
