@@ -5,6 +5,7 @@ import './App.css';
 import Header from './components/main/partials/Header';
 import Footer from './components/main/partials/Footer';
 import Home from './components/main/Home/Home';
+import Dashboard from './components/dashboard/Dashboard';
 
 
 function App() {
@@ -13,7 +14,8 @@ function App() {
       <div className='App'>
         <Header />
         <Routes>
-          <Route path='dashboard/' element={<Home />} />
+          <Route path="/" element={<Home />} />
+          <Route path='dashboard/' element={<Dashboard />} />
           {/* <Route path='apps/' element={}></Route> */}
         </Routes>
         <Footer />
