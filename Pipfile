@@ -10,6 +10,8 @@ djangorestframework = "*"
 aiogram = "*"
 pytz = "*"
 persiantools = "*"
+djangorestframework-simplejwt = "*"
+django-cors-headers = "*"
 
 [dev-packages]
 
