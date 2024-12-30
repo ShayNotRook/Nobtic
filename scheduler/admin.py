@@ -19,14 +19,15 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(AppointmentSlot)
 class AppointmentSlotAdmin(admin.ModelAdmin):
-    list_display = ['salon', 'start_time', 'end_time', 'date', 'day']
+    list_display = ['salon', 'start_time', 'end_time', 'date', 'day', "active"]
+    list_filter = ['date', 'active']
     
     def day(self, obj: AppointmentSlot):
         return obj.day_fa
     
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ["name", "app_start", "app_end", "taken", "slot__salon", "slot__day_of_week"]
+    list_display = ["name", "app_start", "app_end", "taken", "slot__salon", "slot__day_of_week", "slot__active"]
     list_filter = ["taken", "slot__date", "slot__salon", "slot__day_of_week"]
     
     
