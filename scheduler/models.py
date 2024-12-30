@@ -7,7 +7,6 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 
-
 User = settings.AUTH_USER_MODEL
 
 class Salon(models.Model):
@@ -113,6 +112,8 @@ class AppointmentSlot(models.Model):
     start_time = models.TimeField(default=time(8, 0))
     end_time = models.TimeField(default=time(20, 0))
     day_of_week = models.CharField(max_length=12, choices=DayOfWeek.choices, null=True)
+    active = models.BooleanField(default=True)
+    
     
     class Meta:
         constraints = [
@@ -132,6 +133,14 @@ class AppointmentSlot(models.Model):
     def clean(self):
         if self.start_time >= self.end_time:
             raise ValidationError("Start time must be before end time")
+        
+    def check_and_update_active_status(self):
+        from datetime import datetime
+        
+        now = datetime.now().time()
+        if self.end_time < now:
+            self.active = False
+            self.save()
     
     def get_day_fa(self):
         farsi_days = {
@@ -145,8 +154,8 @@ class AppointmentSlot(models.Model):
         }
         return farsi_days.get(self.day_of_week)
     
-    # @property
-    def get_day_display_custom(self):
+    @property
+    def day_display_custom(self):
         return f"{self.day_of_week} / {self.get_day_fa()}"
     
     @property
@@ -184,7 +193,7 @@ class Appointment(models.Model):
     taken = models.BooleanField(default=False)
     app_start = models.TimeField(null=True)
     app_end = models.TimeField(null=True)
-    active = models.BooleanField(default=True)
+    # active = models.BooleanField(default=True)
     
     def __str__(self) -> str:
         return f"{self.customer_name if self.customer_name else ''} on \
