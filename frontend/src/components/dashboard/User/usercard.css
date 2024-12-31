@@ -1,0 +1,21 @@
+.user-card {
+    background-color: #c8c8c83b;
+    padding: 20px;
+    /* border-radius: 8px; */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+
+.user-card-header {
+    margin-bottom: 10px;
+    color: #003975;
+}
+
+
+.user-card p {
+    flex-direction: column;
+    flex-wrap: nowrap;
+    color: #312c2c;
+    margin: 5px 0;
+}
