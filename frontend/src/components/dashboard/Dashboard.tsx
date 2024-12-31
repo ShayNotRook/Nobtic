@@ -3,6 +3,7 @@ import "./dashboard.css"
 import { useEffect, useState } from 'react';
 import AppointmentsTable, { Appointment } from "./AppTable/AppointmentsTable";
 import LoginForm from "../auth/Login";
+import UserCard from "./User/UserCard";
 
 
 interface Slot {
@@ -126,21 +127,39 @@ const Dashboard = () => {
         {!accessToken ? ( 
           <LoginForm onLogin={handleLogin}/>
         ) : (
-        <div className="slots-container">
-            <h3>انتخاب روز</h3>
-            <div className="slots">
-              {slots.map(slot => (
-                <div
-                  key={slot.id}
-                  className={`slot ${selectedSlot?.id === slot.id ? "selected" : ""}`}
-                  onClick={() => handleSlotClick(slot.id)}
-                >
-                  {new Date(slot.date).toLocaleDateString()} - {slot.day_of_week}
+          <>
+          <h2 className="dashboard-header">Dashboard</h2>
+          <div className="main-content">
+            <div className="content">
+              {/* <div className="stats-container">
+                <div className="stat-box">
+                  <h3>Statistics</h3>
+                  <p>Number of appointments: {appointments.length}</p>
+                  <p>Number of upcoming appointments: {appointments.filter(app => new Date(app.app_start) > new Date()).length}</p>
+                  <p>Number of past appointments: {appointments.filter(app => new Date(app.app_start) <= new Date()).length}</p>
                 </div>
-              ))}
+              </div> */}
+              <div className="slots-container">
+                <h3>انتخاب روز</h3>
+                <div className="slots">
+                  {slots.map(slot => (
+                    <div
+                      key={slot.id}
+                      className={`slot ${selectedSlot?.id === slot.id ? "selected" : ""}`}
+                      onClick={() => handleSlotClick(slot.id)}
+                    >
+                      {new Date(slot.date).toLocaleDateString()} - {slot.day_of_week}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <AppointmentsTable appointments={appointments} />
             </div>
-            <AppointmentsTable appointments={appointments} />
+            <div className="user-box">
+              <UserCard token={accessToken!} />
+            </div>
           </div>
+        </>
           )}
       </div>
     </>
