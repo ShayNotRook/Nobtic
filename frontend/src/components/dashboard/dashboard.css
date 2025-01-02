@@ -128,3 +128,32 @@
 .appointments-table tr:hover td {
     background-color: #d6d8db;
 }
+
+
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .content, .user-box {
+        width: 100%;
+        padding: 10px;
+    }
+
+    .stats-container {
+        flex-direction: column;
+    }
+
+    .stat-box {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .slots-container {
+        margin-bottom: 10px;
+    }
+
+    .table-container {
+        max-height: 300px; /* Adjust the height as needed */
+    }
+}

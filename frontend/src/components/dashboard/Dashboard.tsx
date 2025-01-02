@@ -128,7 +128,7 @@ const Dashboard = () => {
           <LoginForm onLogin={handleLogin}/>
         ) : (
           <>
-          <h2 className="dashboard-header">Dashboard</h2>
+          {/* <h2 className="dashboard-header">Dashboard</h2> */}
           <div className="main-content">
             <div className="content">
               {/* <div className="stats-container">
