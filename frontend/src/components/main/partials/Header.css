@@ -1,6 +1,59 @@
 .header {
     background-color: rgb(3, 128, 99);
-    height: 60px;
+    height: 50px;
     /* align-items: left; */
     place-content: center;
+    font-family: 'Roboto', sans-serif;
+}
+
+.header h1 {
+    color: white;
+    font-size: 24px;
+    font-weight: 500;
+    margin: 0;
+    padding: 0;
+}
+
+.header h1 a {
+    color: white;
+    text-decoration: none;
+}
+
+.header h1 a:hover {
+    text-decoration: underline;
+}
+
+.header h1 a:visited {
+    color: white;
+}
+
+
+.nav-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 10%;
+    padding: 0 20px;
+}
+
+.nav-links ul {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+
+.nav-links ul li {
+    margin: 0 10px;
+}
+
+.user-links {
+    display: inline-flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 10%;
+    padding: 0 20px;
 }
