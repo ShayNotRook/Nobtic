@@ -12,6 +12,9 @@ pytz = "*"
 persiantools = "*"
 djangorestframework-simplejwt = "*"
 django-cors-headers = "*"
+python-dotenv = "*"
+requests = "*"
+aiohttp = "*"
 
 [dev-packages]
 
