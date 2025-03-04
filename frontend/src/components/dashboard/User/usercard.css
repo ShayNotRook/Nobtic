@@ -1,9 +1,11 @@
 .user-card {
-    background-color: #c8c8c83b;
+    align-items: right;
+    background-color: #e3e3e33b;
     padding: 20px;
     /* border-radius: 8px; */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
+    border-radius: 12px;
 }
 
 
@@ -14,8 +16,11 @@
 
 
 .user-card p {
-    flex-direction: column;
-    flex-wrap: nowrap;
+    text-align: right;
     color: #312c2c;
-    margin: 5px 0;
+    margin: 8px;
+}
+
+.user-card strong {
+    color: #002e5f;
 }

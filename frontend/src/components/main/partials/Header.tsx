@@ -1,21 +1,45 @@
 // import React from 'react'
-import './Header.css'
+import './Header.css';
+import { AppBar } from '@mui/material';
+import { Box } from '@mui/material';
+import { Toolbar } from '@mui/material';
+// import { Typography } from '@mui/material';
+import { Button } from '@mui/material';
+import {Link as RouterLink } from 'react-router-dom';
 
+interface HeaderProps {
+  access: boolean;
+  onLogout: () => void;
+}
 
-const Header = () => {
-  const access = localStorage.getItem('accessToken');
+const Header: React.FC<HeaderProps> = ({ access, onLogout }) => {
 
   return (
-    <nav className="header">
-      <h1>Scheduler</h1>
-      <div className="nav-links">
-        <a href="/">Home</a>
-        { access ?  <div className='user-links'>
-                    <a href="/dashboard">Dashboard</a> 
-                    <a href="/logout">Logout</a></div>
-                    : <a className='login' href="/login">Login</a>}
-      </div>
-    </nav>
+
+    <AppBar position="static">
+      <Toolbar>
+        
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button color="inherit" component={RouterLink} to="/">
+            Home
+          </Button>
+          {access ? (
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <Button color="inherit" component={RouterLink} to="/dashboard">
+                Dashboard
+              </Button>
+              <Button color="inherit" onClick={onLogout}>
+                Logout
+              </Button>
+            </Box>
+          ) : (
+            <Button color="inherit" component={RouterLink} to="/login">
+              Login
+            </Button>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   )
 }
 

@@ -15,7 +15,7 @@ const API: string = "http://localhost:8000/users/api/"
 
 const UserCard: React.FC<{ token: string, className?: string }> = ({ token, className }) => {
     const [user, setUser] = useState<User | null>(null);
-
+    
     useEffect(() => {
         fetch(`${API}user/detail/`, {
             headers: {
@@ -31,12 +31,9 @@ const UserCard: React.FC<{ token: string, className?: string }> = ({ token, clas
         return <div className={`loading ${className}`}>Loading...</div>
     }
     return (
-        <div className={`user-card-${className}`}>
-            <h3 className='user-card-header'>اطلاعات کاربر</h3>
-            <p><strong>نام کاربری:</strong> {user.username}</p>
-            <p><strong>نام:</strong> {user.first_name}</p>
-            <p><strong>نام خانوادگی:</strong> {user.last_name}</p>
-            <p><strong>ایمیل:</strong> {user.email}</p>
+        <div className="user-card">
+            <h3 className='user-card-header'>کاربر {user.username}</h3>
+            <p><strong>{user.first_name} {user.last_name}</strong> به پنل کاربری خوش امدید!</p>
         </div>
     )
 }

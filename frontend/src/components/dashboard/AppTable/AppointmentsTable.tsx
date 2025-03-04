@@ -1,48 +1,118 @@
 import React from 'react';
-
 import './appointment.css';
+import {
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Typography,
+  Box,
+  Button,
+  Divider
+} from '@mui/material';
+
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 export interface Appointment {
     id: number,
     customer_name: string,
-    service: null | {name: string},
+    service: string
     app_start: string;
     app_end: string;
-    taken: boolean;
     slot: number;
+    status: string;
+    receipt_img?: string;
+    receipt_txt?: string;
 }
 
-interface AppointmentsTableProps {
+interface DayAppointment {
+    dayLabel: string;
     appointments: Appointment[];
 }
 
-const AppointmentsTable: React.FC<AppointmentsTableProps> = ({ appointments }) => {
-  return (
-    <div className='table-container'>
-      <table className="appointments-table">
-        <thead>
-          <tr>
-            <th>نام مشتری</th>
-            <th>سرویس</th>
-            <th>شروع نوبت</th>
-            <th>پایان نوبت</th>
-            <th>وضعیت</th>
-          </tr>
-        </thead>
-        <tbody>
-          {appointments.map(app => (
-            <tr key={app.id}>
-              <td>{app.customer_name ? app.customer_name : "بدون رزرو"}</td>
-              <td>{app.service ? app.service.name : 'بدون خدمت'}</td>
-              <td>{app.app_start}</td>
-              <td>{app.app_end}</td>
-              <td>{app.taken ? "تایید شده" : "در انتظار تایید"}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-};
+interface AppointmentsTabProps {
+    data: DayAppointment[];
+    onApprove: (appointmentId: number) => void;
+    onDecline: (appointmentId: number) => void;
+}
 
-export default AppointmentsTable;
+const AppointmentsTab: React.FC<AppointmentsTabProps> = ({ data, onApprove, onDecline }) => {
+  return (
+      <Box sx={{ p: 2 }}>
+        {data.map((day) => (
+          <Box key={day.dayLabel} sx={{ mb: 3 }}>
+            <Typography variant='h6' sx={{ mb: 1}}>
+              {day.dayLabel}
+            </Typography>
+            {day.appointments.map((app) => (
+              <Accordion key={app.id} sx={{ mb: 1 }}>
+                <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                {/* Top-level summary (customer_name, service, app_start)*/}
+                  <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>                    
+                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                      {app.customer_name}
+                    </Typography>
+                    <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                      {app.service} | شروع: {app.app_start}
+                    </Typography>
+                  </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                  {/* Receipt info or image*/}
+                  {app.receipt_img ? (
+                    <Box
+                    component="img"
+                    src={app.receipt_img}
+                    alt='رسید تراکنش'
+                    sx={{
+                        width: "100%",
+                        height: "auto",
+                        borderRadius: 1,
+                        mb: 2
+                      }}
+                    />
+                  ) : app.receipt_txt ? (
+                    <Typography
+                      variant='body2'
+                      sx={{
+                        p: 2,
+                        border: "1px dashed gray",
+                        borderRadius: 1,
+                        mb: 2
+                      }}
+                    >
+                      {app.receipt_txt}
+                    </Typography>
+                  ) : (
+                    <Typography variant='body2' sx={{ color: 'text.secondary', mb: 2}}>
+                        هیچ رسیدی دریافت نشده است.
+                    </Typography>
+                  )}
+
+                  <Divider sx={{ mb: 2 }} />
+                  
+                  {/* Approve / Decline buttons */}
+                  <Box sx={{ display: "flex", justifyContent: "space-around" }}>
+                    <Button
+                      variant='contained'
+                      color='success'
+                      onClick={() => onApprove(app.id)}
+                    >
+                      تایید
+                    </Button>
+                    <Button
+                      variant='contained'
+                      color='error'
+                      onClick={() => onDecline(app.id)}
+                    >
+                      رد
+                    </Button>
+                  </Box>
+                </AccordionDetails>
+              </Accordion>
+            ))}
+          </Box>
+        ))}
+      </Box>
+  )
+}
+export default AppointmentsTab;

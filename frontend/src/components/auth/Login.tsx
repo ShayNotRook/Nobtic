@@ -1,12 +1,14 @@
 import { useState }from "react";
 
 import './login.css';
+import { useNavigate } from "react-router-dom";
 
 const API: string = "http://localhost:8000/users/api/token/";
 
 
 interface LoginFormProps {
     onLogin: (access: string, refresh: string) => void;
+    // className: string;
 }
 
 
@@ -14,7 +16,9 @@ interface LoginFormProps {
 const LoginForm = ({ onLogin }: LoginFormProps) => {
     const [username, setUsername] = useState<string>("");
     const [password, setPassword] = useState<string>("");
+    const navigate = useNavigate();
 
+    
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         e.preventDefault();
         if (e.target.name === "username") {
@@ -37,6 +41,7 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
         const data = await response.json();
         if (response.ok) {
             onLogin(data.access, data.refresh);
+            navigate("/");
         } else {
             alert("Login failed")
         }
@@ -44,20 +49,21 @@ const LoginForm = ({ onLogin }: LoginFormProps) => {
 
     return (
         <form className="login-form" onSubmit={handleSubmit}>
+            <h3>ورود</h3>
             <div>
                 <input
                     type="text"
                     name="username"
                     value={username}
                     onChange={handleChange}
-                    placeholder="Username"
+                    placeholder="نام کاربری"
                 />
                 <input
                     type="password"
                     name="password"
                     value={password}
                     onChange={handleChange}
-                    placeholder="Password"
+                    placeholder="رمز عبور"
                 />
             </div>
             <button type="submit">Login</button>

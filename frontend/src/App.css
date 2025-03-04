@@ -1,3 +1,20 @@
 * {
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-family: "Rubik", serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    font-style: normal;
+}
+
+.main {
+    display: flex;
+    flex: 1;
+    direction: rtl;
+    background-color: #fafafa;
+    align-content: center;
+    justify-content: center;
+}
+
+.App {
+    text-align: center;
+    height: 100%;
 }

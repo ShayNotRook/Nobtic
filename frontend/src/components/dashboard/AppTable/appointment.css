@@ -1,11 +1,14 @@
-table {
+/* .appointments-table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-bottom: 16px;
 }
 
-th, td {
-    padding: 10px;
-    border: 1px solid #ccc;
-    text-align: left;
-}
+
+.appointments-table th,
+.appointments-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    font-size: 14px;
+    text-align: center;
+} */
