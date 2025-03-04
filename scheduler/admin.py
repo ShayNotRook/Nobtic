@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Salon, Service, SalonAvailableTimes, AppointmentSlot, Appointment
+from .models import Salon, Service, AppointmentSlot, Appointment
 
 @admin.register(Salon)
 class SalonAdmin(admin.ModelAdmin):
@@ -9,26 +9,23 @@ class SalonAdmin(admin.ModelAdmin):
     
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
-    list_display = ('name', 'salon')
+    list_display = ['id', 'name', 'salon', 'provider', 'duration', 'price']
     
     
-# @admin.register(SalonAvailableTimes)
-# class TimesAdmin(admin.ModelAdmin):
-#     list_display = ['salon', 'start_time', 'end_time']
-    
+
 
 @admin.register(AppointmentSlot)
 class AppointmentSlotAdmin(admin.ModelAdmin):
-    list_display = ['salon', 'start_time', 'end_time', 'date', 'day', "active"]
-    list_filter = ['date', 'active']
+    list_display = ['id', 'salon', 'start_time', 'end_time', 'date', 'day', 'employee']
+    list_filter = ['date']
     
     def day(self, obj: AppointmentSlot):
         return obj.day_fa
     
 @admin.register(Appointment)
 class AppointmentAdmin(admin.ModelAdmin):
-    list_display = ["name", "app_start", "app_end", "taken", "slot__salon", "slot__day_of_week", "slot__active"]
-    list_filter = ["taken", "slot__date", "slot__salon", "slot__day_of_week"]
+    list_display = ["name", "app_start", "app_end", "slot__salon", "slot__day_of_week", "status"]
+    list_filter = ["slot__date", "slot__salon", "slot__day_of_week"]
     
     
     def name(self, obj: Appointment):
