@@ -2,24 +2,39 @@ from typing import List
 from datetime import time
 
 from django.db import models
-from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.contrib.auth import get_user_model
+from django.utils.text import slugify
+
+User = get_user_model()
+BOT_USERNAME = "salon_scheduler_bot"
 
 
-User = settings.AUTH_USER_MODEL
 
 class Salon(models.Model):
     name = models.CharField(max_length=255)
     slug = models.SlugField(unique=True, null=True)
     address = models.TextField()
     contact = models.CharField(max_length=20)
-    owner = models.OneToOneField(User, on_delete=models.PROTECT, null=True, related_name='salon')
+    owner = models.OneToOneField(User, on_delete=models.PROTECT, null=True, related_name='owner')
+    telegram_link = models.URLField(blank=True)
 
     def __str__(self) -> str:
         return self.name
     
-    def create_slots_until_date(self, end_date: str) -> None:
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        
+        self.telegram_link = self.generate_bot_link()
+        
+        super().save(*args, **kwargs)
+    
+    def generate_bot_link(self):
+        bot_username = BOT_USERNAME
+        return f"https://t.me/{bot_username}?start={self.slug}"
+    
+    def create_slots_until_date(self, end_date: str, emp_id) -> None:
         """
         Creates appointment slots until the given end_date.
 
@@ -28,25 +43,21 @@ class Salon(models.Model):
         """
         from datetime import timedelta, datetime
         from persiantools.jdatetime import JalaliDate
-        
-        print("Test")
-        
+                
         end_date = JalaliDate(*map(int, end_date.split('-')), locale="fa").to_gregorian()
-        print(end_date)
         current_date = JalaliDate.today().to_gregorian()
         days_till_end_date: timedelta = end_date - current_date
         
         slots_to_create: List['AppointmentSlot'] = [] # Stores AppointmentSlot objects to be bulk created
     
             
-        for n in range(days_till_end_date.days + 1):
-            single_date = current_date + timedelta(days=n)
+        for day in range(days_till_end_date.days + 1):
+            single_date = current_date + timedelta(days=day)
             if not AppointmentSlot.objects.filter(salon=self, date=single_date).exists():
                 slot = AppointmentSlot(salon=self, date=single_date)
                 slot.save()
                 slots_to_create.append(slot)
         
-        # print(slots_to_create)
         
         if slots_to_create:
             created_slots = AppointmentSlot.objects.bulk_create(slots_to_create, ignore_conflicts=True)
@@ -57,47 +68,25 @@ class Salon(models.Model):
     
     class Meta:
         verbose_name = 'Salon Model'    
-
-
-class SalonAvailableTimes(models.Model):
-    salon = models.ForeignKey(Salon, on_delete=models.CASCADE)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-    day_of_week = models.CharField(max_length=12, choices=[
-        ('Saturday', 'Saturday'),
-        ('Sunday', 'Sunday'),
-        ('Monday', 'Monday'),
-        ('Tuesday', 'Tuesday'),
-        ('Wednesday', 'Wednesday'),
-        ('Thursday', 'Thursday'),
-        ('Friday', 'Friday')
-    ]) 
     
-    def __str__(self) -> str:
-        return f"{self.salon}"
-    
-    
-    def clean(self) -> None:
-        if self.start_time > self.end_time:
-            raise ValidationError("Start time must be before end time")
-        if self.start_time < time(0, 0) or self.end_time > time(23, 59):
-            raise ValidationError("Time must be within a valid 24-hour range.")
-          
-    
-    class Meta:
-        verbose_name = 'Available time'
     
 class Service(models.Model):
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
-    duration_time = models.PositiveIntegerField()
+    duration = models.PositiveIntegerField()
+    price = models.IntegerField(help_text="Enter the price in Toman (e.g., 50000 for 50,000 Toman)", default=0)
+    provider = models.ForeignKey('users.SalonEmployee', on_delete=models.PROTECT, related_name='services', null=True)
     
+
     def __str__(self) -> str:
-        return f"{self.name} - {self.salon.name}"
+        return self.name
     
+    def asave(self, force_insert = ..., force_update = ..., using = ..., update_fields = ...):
+        return super().asave(force_insert, force_update, using, update_fields)
     
     
 class AppointmentSlot(models.Model):
+    
     class DayOfWeek(models.TextChoices):
         SATURDAY = 'Saturday'
         SUNDAY = 'Sunday'
@@ -108,12 +97,11 @@ class AppointmentSlot(models.Model):
         FRIDAY = 'Friday'
         
     salon = models.ForeignKey(Salon, on_delete=models.CASCADE, null=True)
-    date = models.DateField()
+    employee = models.ForeignKey('users.SalonEmployee', null=True, on_delete=models.PROTECT, related_name='slots')
+    date = models.DateField(db_index=True)
     start_time = models.TimeField(default=time(8, 0))
     end_time = models.TimeField(default=time(20, 0))
     day_of_week = models.CharField(max_length=12, choices=DayOfWeek.choices, null=True)
-    active = models.BooleanField(default=True)
-    
     
     class Meta:
         constraints = [
@@ -123,6 +111,8 @@ class AppointmentSlot(models.Model):
             )
         ]
     
+    
+    # Class methods
     def __str__(self) -> str:
         return f"{self.date}"
     
@@ -142,7 +132,10 @@ class AppointmentSlot(models.Model):
             self.active = False
             self.save()
     
-    def get_day_fa(self):
+    
+    # Properties
+    @property
+    def day_fa(self):
         farsi_days = {
             'Saturday': 'شنبه',
             'Sunday': 'یکشنبه',
@@ -157,77 +150,156 @@ class AppointmentSlot(models.Model):
     @property
     def day_display_custom(self):
         return f"{self.day_of_week} / {self.get_day_fa()}"
-    
-    @property
-    def day_fa(self):
-        return self.get_day_fa()
-    
-    
-    # Util function for automatically creating apps (With signal)
-    def create_appointments(self, service_duration: int):
-        from datetime import datetime, timedelta
         
-        start = datetime.combine(self.date, self.start_time)
-        end = datetime.combine(self.date, self.end_time)
-        current = start
-        
-        while current + timedelta(minutes=service_duration) <= end:
-            Appointment.objects.create(
-                slot=self,
-                app_start=current.time(),
-                app_end=(current + timedelta(minutes=service_duration)).time(),
-                taken=False
-            )
-            current += timedelta(minutes=service_duration)
     
     @property
     def all_appointments(self) -> List["Appointment"]:
         return self.appointments.all()
     
-                
 
+            
+    # Util functions
+    @staticmethod
+    def create_slots_until_date( end_date: str, employee) -> None:
+        """
+        Creates appointment slots until the given end_date.
+
+        Parameters:
+        end_date (str): The end date in the format "YYYY-MM-DD".
+        """
+        from datetime import timedelta
+        from persiantools.jdatetime import JalaliDate
+                
+        end_date = JalaliDate(*map(int, end_date.split('-')), locale="fa").to_gregorian()
+        current_date = JalaliDate.today().to_gregorian()
+        days_till_end_date: timedelta = end_date - current_date
+        
+        slots_to_create: List['AppointmentSlot'] = [] # Stores AppointmentSlot objects to be bulk created
+    
+            
+        for day in range(days_till_end_date.days + 1):
+            single_date = current_date + timedelta(days=day)
+            if not AppointmentSlot.objects.filter(employee=employee, date=single_date).exists():
+                slot = AppointmentSlot(employee=employee, salon = employee.salon, date=single_date)
+                slot.save()
+                slots_to_create.append(slot)
+        
+        if slots_to_create:
+            created_slots = AppointmentSlot.objects.bulk_create(slots_to_create, ignore_conflicts=True)
+            print(f"Created {len(created_slots)} appointment slots.")
+        
+        else:
+            print("No new appointment slots needed.")
+    
+    
+    
+    def get_available_ranges(self):
+        """
+            This method returns the unappointed time ranges available within a slot
+            
+            Returns:
+                List[Tuple[datetime.time, datetime.time]] - Available time ranges without any appointments
+        """
+        ranges = []
+        apps = self.all_appointments.order_by('app_start')
+        
+        # Time formatter(Removes the seconds slice from time object)
+        def format_time(t):
+            return t.strftime("%H:%M")
+        
+        
+        if not apps.exists():
+            ranges.append(f"{format_time(self.start_time)} - {format_time(self.end_time)}")
+        else:
+            if self.start_time < apps[0].app_start:
+                ranges.append(f"{format_time(self.start_time)} - {format_time(apps[0].app_start)}")
+                
+            for index in range(1, len(apps)):
+                if apps[index - 1].app_end < apps[index].app_start:
+                    ranges.append(f"{format_time(apps[index - 1].app_end)} - {format_time(apps[index].app_start)}")
+            
+            last_app = apps.order_by('-id').first()
+            if last_app.app_end < self.end_time:
+                ranges.append(f"{format_time(last_app.app_end)} - {format_time(self.end_time)}")
+                
+        return ranges
+    
+    
+    def service_fits(self, service_duration_minutes):
+        from datetime import datetime, timedelta
+        """
+            This method checks if the given service can fit within any available time range
+            within a slot.
+            Return a list of available start times.
+            
+            Parameters:
+                service_duration_minues: int - The duration of the service in minutes.
+                
+            Returns:
+                List[datetime.time] - Available start times for the service
+        """
+        
+        available_start_times = []
+        time_ranges = self.get_available_ranges()
+        
+        
+        for time_range in time_ranges:
+            start, end = [datetime.strptime(t.strip(), "%H:%M").time() for t in time_range.split(' - ')]
+            # duration = timedelta(minutes=service_duration_minutes)
+            
+                   
+            end_datetime = datetime.combine(self.date, end)
+            duration_timedelta = timedelta(minutes=service_duration_minutes)
+            max_start_time = (end_datetime - duration_timedelta).time()
+            
+            
+            if max_start_time > start:
+                available_start_times.append(f"{start.strftime('%H:%M')} - {max_start_time.strftime('%H:%M')}")
+                
+            elif max_start_time == start:
+                available_start_times.append(start.strftime("%H:%M"))
+                
+                
+        return available_start_times
+    
+
+def appointment_images_upload_to(instance: 'Appointment', filename):
+    return f"{instance.slot.employee.name}/apps/receipt_imgs/{filename}"
+    
 class Appointment(models.Model):
+    
+    class StatusChoices(models.TextChoices):
+        DECLINED = 'رد شده'
+        NOT_PAID = 'پرداخت نشده'
+        PENDING = 'در انتظار تایید'
+        APPROVED = 'تایید شده'
+        
     customer_name = models.CharField(max_length=100, null=True)
     service = models.ForeignKey(Service, on_delete=models.CASCADE, null=True)
     slot = models.ForeignKey(AppointmentSlot, on_delete=models.CASCADE, related_name="appointments", null=True)
-    taken = models.BooleanField(default=False)
     app_start = models.TimeField(null=True)
     app_end = models.TimeField(null=True)
-    # active = models.BooleanField(default=True)
+    status = models.CharField(max_length=20, choices=StatusChoices.choices, default=StatusChoices.NOT_PAID)
+    telegram_chat_id = models.BigIntegerField(null=True)
+    receipt_txt = models.TextField(null=True, blank=True)
+    receipt_img = models.ImageField(upload_to=appointment_images_upload_to, null=True, blank=True)
     
     def __str__(self) -> str:
         return f"{self.customer_name if self.customer_name else ''} on \
-                 {self.slot.date} at {self.app_start} to {self.app_end} -> {'Taken' if self.taken else 'Available'}"
+                 {self.slot.date} at {self.app_start} to {self.app_end}"
     
+    def clean(self):
+        if not self.customer_name:
+            raise ValueError("Appointment object should include the customer's name")
+        
+        if self.app_start >= self.app_end:
+            raise ValidationError("Start time must be before end time")
+        
     
-    @staticmethod
-    def find_available_slots(slot: AppointmentSlot, duration: int) -> List["Appointment"] :
+    def get_receipt_url(self):
         """
-        Find smaller available time slots within the given AppointmentSlot.
+            Returns the URL for the receipt image, if available.
         """
-        available = []
-        appointments = slot.appointments.filter(taken=False).order_by("app_start")
-        for appointment in appointments:
-            # Check if the duration fits in the current appointment
-            if (appointment.app_end.hour * 60 + appointment.app_end.minute) - (
-                appointment.app_start.hour * 60 + appointment.app_start.minute
-            ) >= duration:
-                available.append(appointment)
-        return available
-    
-    
-    
-    @staticmethod
-    def book_app(id: int, name: str) -> None:
-        try:
-            app = Appointment.objects.get(id=id)
-            if app.taken:
-                raise ValidationError("This appointment is already taken.")
-            app.customer_name = name
-            app.taken = True
-            app.save()
-        except Appointment.DoesNotExist:
-            raise ValidationError("Appointment with the given ID does not exist.")
-    
-    
-    
+        if self.receipt_img:
+            return self.receipt_img.url
+        return None
