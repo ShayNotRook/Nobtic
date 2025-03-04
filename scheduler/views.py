@@ -5,7 +5,7 @@ from django.contrib.auth import get_user_model
 
 from typing import List
 from datetime import datetime
-from .models import AppointmentSlot, Appointment
+from .models import AppointmentSlot, Appointment, Salon
 
 
 _user = get_user_model()
@@ -14,12 +14,13 @@ _user = get_user_model()
 @login_required
 def all_apps(request: HttpRequest):
     user = _user.objects.get(username=request.user.username)
-    salon_name = user.salon.name
+    salon_name = Salon.objects.get(owner=user)
     today = datetime.now().date()
     apps = []
     try:
         app_slot = AppointmentSlot.objects.get(salon__owner=user, date=today)
-        apps = app_slot.all_appointments.all()
+        print(app_slot)
+        apps = app_slot.all_appointments
     except AppointmentSlot.DoesNotExist:
         apps = None
     # print(print(apps))
