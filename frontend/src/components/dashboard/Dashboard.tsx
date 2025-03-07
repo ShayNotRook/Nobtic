@@ -16,8 +16,8 @@ interface Slot {
   appointments: Appointment[];
 }
 
-const API: string = "http://localhost:8000/schedule/api/v1";
-const USER_API: string = "https//localhost:8000/users/api"
+const API: string = "http://nobtic.ir/backend/schedule/api/v1";
+const USER_API: string = "https://nobtic.ir/backend/users/api"
 
 const Dashboard: React.FC<{ availableAccess: string}> = ({ availableAccess }) => {
   const [slots, setSlots] = useState<Slot[]>([]);
@@ -152,8 +152,15 @@ const Dashboard: React.FC<{ availableAccess: string}> = ({ availableAccess }) =>
     console.log(data)
   }
   
-  const handleDecline = (appId: number) => {
-    console.log("Declined")
+  const handleDecline = async(appId: number) => {
+    const response = await fetch(`${API}/app/decline/${appId}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    const data = await response.json()
+    console.log("Declined", data)
   }
 
   useEffect(() => {

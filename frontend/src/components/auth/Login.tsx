@@ -3,7 +3,7 @@ import { useState }from "react";
 import './login.css';
 import { useNavigate } from "react-router-dom";
 
-const API: string = "http://localhost:8000/users/api/token/";
+const API: string = "http://nobtic.ir/backend/users/api/token/";
 
 
 interface LoginFormProps {
