@@ -4,7 +4,7 @@ import aiohttp
 from bot.dataclasses import Salon, Employee, Service
 from .util_funcs import create_slot_by_date
 
-API = "http://localhost:8000/bot/api"
+API = "https://nobtic.ir/backend/bot/api"
 
 
 async def fetch_salon_data(slug: str) -> Salon:

@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import (
     TokenBlacklistView
 )
 
-from .api_views import UserDetailView, session_login, authenticate_with_session
+from .api_views import UserDetailView
 
 urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),

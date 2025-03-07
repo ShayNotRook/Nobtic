@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 python-telegram-bot = "*"
-django = "*"
 djangorestframework = "*"
 aiogram = "*"
 pytz = "*"
@@ -17,6 +16,9 @@ requests = "*"
 aiohttp = "*"
 zeep = "*"
 pillow = "*"
+django = "*"
+psycopg2 = "*"
+gunicorn = "*"
 
 [dev-packages]
 
