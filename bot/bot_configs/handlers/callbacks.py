@@ -291,7 +291,7 @@ async def send_payment_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     converted_price = comma_adder(str(service_price))
     
     message = (
-        f"لطفا مبلغ *{converted_price}* تومان* به حساب جهت بیعانه زیر واریز کنید*\n\n"
+        f"لطفا مبلغ *{converted_price}* تومان* به حساب زیر جهت بیعانه واریز کنید*\n\n"
         f"*{card_info}*\n\n"
         "لطفا پس از واریز, فیش واریز خود را به صورت متن یا عکس ارسال کنید\\."
     )
