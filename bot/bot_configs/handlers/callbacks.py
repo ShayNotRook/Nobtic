@@ -30,7 +30,7 @@ async def handle_employee_selection(update: Update, context: ContextTypes.DEFAUL
 
     employee = next((emp for emp in salon.employees if emp.id == emp_id), None)
     if employee is None:
-        await query.edit_message_text("سرویس دهنده انتخاب شده معتبر نیست")
+        await query.edit_message_text("ارایشگر انتخاب شده معتبر نیست")
         return
     
 
@@ -291,7 +291,7 @@ async def send_payment_info(update: Update, context: ContextTypes.DEFAULT_TYPE):
     converted_price = comma_adder(str(service_price))
     
     message = (
-        f"لطفا مبلغ *{converted_price}* تومان* به حساب زیر واریز کنید*\n\n"
+        f"لطفا مبلغ *{converted_price}* تومان* به حساب جهت بیعانه زیر واریز کنید*\n\n"
         f"*{card_info}*\n\n"
         "لطفا پس از واریز, فیش واریز خود را به صورت متن یا عکس ارسال کنید\\."
     )
