@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 
-const API: string = "http://localhost:8000/users/api/token";
+const API: string = "https://nobtic.ir/backend/users/api/token";
 
 
 const Logout = () => {

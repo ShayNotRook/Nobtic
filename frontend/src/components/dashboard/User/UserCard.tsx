@@ -10,7 +10,7 @@ interface User {
     last_name: string,
 }
 
-const API: string = "http://nobtic.ir/backend/users/api/" 
+const API: string = "https://nobtic.ir/backend/users/api/" 
 
 
 const UserCard: React.FC<{ token: string, className?: string }> = ({ token, className }) => {

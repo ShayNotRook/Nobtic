@@ -16,8 +16,8 @@ interface Slot {
   appointments: Appointment[];
 }
 
-const API: string = "http://nobtic.ir/backend/schedule/api/v1";
-const USER_API: string = "https://nobtic.ir/backend/users/api"
+const API: string = "https://nobtic.ir/backend/schedule/api/v1";
+const USER_API: string = "https://nobtic.ir/backend/users/api";
 
 const Dashboard: React.FC<{ availableAccess: string}> = ({ availableAccess }) => {
   const [slots, setSlots] = useState<Slot[]>([]);
