@@ -37,7 +37,7 @@ def build_date_keyboard(available_slots):
     
     for index, slot in enumerate(available_slots):
         slot_date = slot.date
-        jalali = str(slot.date) if slot.date else "Invalid Date"
+        jalali = slot.date.strftime("%m/%d") if slot.date else "Invalid Date"
         row.append(InlineKeyboardButton(f"{jalali} - {FarsiDayConvert.get_day_name(slot_date)}", callback_data=f"date_{index}"))
         
         # Add row to keyboard after every 3 buttons
