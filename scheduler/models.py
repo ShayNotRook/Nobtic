@@ -180,7 +180,8 @@ class AppointmentSlot(models.Model):
         for day in range(days_till_end_date.days + 1):
             single_date = current_date + timedelta(days=day)
             if not AppointmentSlot.objects.filter(employee=employee, date=single_date).exists():
-                slot = AppointmentSlot(employee=employee, salon = employee.salon, date=single_date)
+                slot = AppointmentSlot(employee=employee, salon = employee.salon, date=single_date,
+                                        start_time=employee.preferred_start, end_time=employee.preferred_end)
                 slot.save()
                 slots_to_create.append(slot)
         
@@ -264,7 +265,7 @@ class AppointmentSlot(models.Model):
     
 
 def appointment_images_upload_to(instance: 'Appointment', filename):
-    return f"{instance.slot.employee.name}/apps/receipt_imgs/{filename}"
+    return f"{instance.slot.employee.username}/apps/receipt_imgs/{filename}"
     
 class Appointment(models.Model):
     
