@@ -265,7 +265,7 @@ class AppointmentSlot(models.Model):
     
 
 def appointment_images_upload_to(instance: 'Appointment', filename):
-    return f"{instance.slot.employee.username}/apps/receipt_imgs/{filename}"
+    return f"backend/app_receipts/{instance.slot.employee.username}/receipt_imgs/{filename}"
     
 class Appointment(models.Model):
     
