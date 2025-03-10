@@ -2,6 +2,8 @@ from django.db import models
 from django.core.validators import RegexValidator
 from django.contrib.auth.models import AbstractUser
 
+from datetime import time
+
 
 class User(AbstractUser):
     pass
@@ -22,10 +24,15 @@ class SalonEmployee(models.Model):
     name = models.CharField(max_length=100)
     rating = models.DecimalField(max_digits=2, decimal_places=1)
     card_num = models.CharField(max_length=19, unique=True, null=True, validators=[card_number_validator])
+    preferred_start = models.TimeField(default=time(8, 0))
+    preferred_end = models.TimeField(default=time(20, 0))
     
     def __str__(self):
         return f"{self.name} - {self.salon.name}"
     
+    @property
+    def username(self):
+        return self.user.username
     
     def format_card_num(self):
         cleaned_num = self.card_num.replace(" ", "")
