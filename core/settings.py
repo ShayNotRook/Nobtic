@@ -149,7 +149,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = '/var/www/nobtic/static/'
+MEDIA_ROOT = '/var/www/nobtic/media/'
 
 
 # Default primary key field type
