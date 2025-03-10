@@ -83,6 +83,7 @@ def split_time_ranges(date, time_range_str, interval_minutes=60):
     
     # Normal case where it contains a range of start to max start time
     start_str, end_str = time_range_str.split(' - ')
+    print(f"Range: {time_range_str}, end: {end_str}")
     
     start_time = datetime.combine(date.to_gregorian(), datetime.strptime(start_str, "%H:%M").time())
     end_time = datetime.combine(date.to_gregorian(), datetime.strptime(end_str, "%H:%M").time())
