@@ -328,8 +328,9 @@ async def handle_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         # Downloaded Image
         receipt_img = await file_info.download_as_bytearray()
-        # receipt_txt = update.message.caption or ""
-        payload.add_field("receipt_img", io.BytesIO(receipt_img), filename='test.jpeg', content_type="image/jpeg")
+        
+        file_name = file_info.file_path.split('/')[-1]
+        payload.add_field("receipt_img", io.BytesIO(receipt_img), filename=file_name, content_type=file_info.mime_type)
     
     elif (receipt_txt := update.message.text):
         payload.add_field("receipt_txt", receipt_txt)
