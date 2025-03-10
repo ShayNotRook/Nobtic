@@ -322,6 +322,7 @@ async def handle_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if update.message.photo:
         import io
+        import mimetypes
         
         file_id = update.message.photo[-1].file_id
         file_info = await context.bot.get_file(file_id)
@@ -329,8 +330,10 @@ async def handle_receipt(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Downloaded Image
         receipt_img = await file_info.download_as_bytearray()
         
-        file_name = file_info.file_path.split('/')[-1]
-        payload.add_field("receipt_img", io.BytesIO(receipt_img), filename=file_name, content_type=file_info.mime_type)
+        mime_type = mimetypes.guess_type(file_info.file_path)[0] or "image/jpeg"
+        file_name = f"photo_{file_id}.jpg"
+        
+        payload.add_field("receipt_img", io.BytesIO(receipt_img), filename=file_name, content_type=mime_type)
     
     elif (receipt_txt := update.message.text):
         payload.add_field("receipt_txt", receipt_txt)
